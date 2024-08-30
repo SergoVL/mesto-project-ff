@@ -27,11 +27,11 @@ function deleteCard(cardElement) {
 
 // Выводим карточки на страницу
 function displayCards() {
-  const placesList = document.querySelector('.places__list');
+  const cardsContainer = document.querySelector('.places__list');
 
   initialCards.forEach(cardData => {
     const cardElement = createCard(cardData, deleteCard);
-    placesList.append(cardElement);
+    cardsContainer.append(cardElement);
   });
 }
 
