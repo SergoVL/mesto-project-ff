@@ -8,7 +8,19 @@ export function closeModal(modal) {
     modal.classList.add('popup_is-animated');
     modal.classList.remove('popup_is-opened');
     document.removeEventListener('keydown', handleEscClose);
+}
 
+function handleEscClose(event) {
+    if (event.key === 'Escape') {
+        const openModal = document.querySelector('.popup_is-opened');
+        if (openModal) {
+            closeModal(openModal);
+            resetForm(openModal)
+        }
+    }
+}
+
+export function resetForm(modal) {
     const formElement = document.querySelector('.popup__form[name="edit-profile"]');
     const addPlaceFormElement = document.querySelector('.popup__form[name="new-place"]');
 
@@ -18,14 +30,5 @@ export function closeModal(modal) {
 
     if (modal.classList.contains('popup_type_new-card') && addPlaceFormElement) {
         addPlaceFormElement.reset();
-    }
-}
-
-function handleEscClose(event) {
-    if (event.key === 'Escape') {
-        const openModal = document.querySelector('.popup_is-opened');
-        if (openModal) {
-            closeModal(openModal);
-        }
     }
 }
