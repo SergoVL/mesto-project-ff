@@ -1,7 +1,7 @@
 import './index.css'; // Главный файл стилей
 import { initialCards } from './components/cards.js';
 import { createCard, deleteCard } from './components/card.js';
-import { openModal, closeModal, resetForm } from './components/modal.js';
+import { openModal, closeModal, handleClickOutside } from './components/modal.js';
 
 // Переменные для форм и элементов на странице
 const profileEditFormElement = document.querySelector('.popup__form[name="edit-profile"]');
@@ -68,7 +68,7 @@ function handleProfileFormSubmit(evt) {
   profileDescription.textContent = job;
 
   closeModal(popupEdit);
-  resetForm(popupEdit);
+  profileEditFormElement.reset(); // Сбрасываем форму после закрытия
 }
 
 // Обработчик отправки формы добавления новой карточки
@@ -94,7 +94,7 @@ function handleNewPlaceFormSubmit(evt) {
   cardsContainer.prepend(newCardElement);
 
   closeModal(popupNewCard);
-  resetForm(popupNewCard);
+  newPlaceFormElement.reset(); // Сбрасываем форму после закрытия
 }
 
 // Прикрепляем обработчики к формам
@@ -117,18 +117,8 @@ closeButtons.forEach(button => {
   button.addEventListener('click', () => {
     const popup = button.closest('.popup');
     closeModal(popup);
-    resetForm(popup);
   });
 });
-
-// Обработчик клика вне попапа для его закрытия
-function handleClickOutside(event) {
-  const openPopup = document.querySelector('.popup_is-opened');
-  if (openPopup && event.target === openPopup) {
-    closeModal(openPopup);
-    resetForm(openPopup);
-  }
-}
 
 // Прикрепляем обработчики клика вне попапа к каждому оверлею
 [popupEdit, popupNewCard, popupImage].forEach(popup => {
