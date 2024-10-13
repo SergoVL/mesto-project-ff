@@ -11,12 +11,25 @@
   border-radius: 2px;
   border: none;
   transition: visibility 0s, background 0.3s;
-  margin-top: 48px;
+  margin-top: 31px;
 }
 
-.popup__button:hover {
+.popup__confirm-button {
+  margin-top: 38px;
+}
+
+.popup__button:hover:not(.popup__button_disabled) {
   background: rgba(0, 0, 0, 0.8);
   cursor: pointer;
+}
+
+.popup__button_disabled {
+  color: rgba(0, 0, 0, 0.15);
+  cursor: not-allowed;
+  background-color: rgba(255, 255, 255, 0.5);
+  box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  border: rgba(0, 0, 0, 0.15) 1px solid;
+  border-radius: 2px;
 }
 
 @media screen and (max-width: 568px) {

@@ -19,9 +19,8 @@ function handleEscClose(event) {
   }
 }
 
-// Обработчик клика вне модального окна для его закрытия
 export function handleClickOutside(event) {
   if (event.target === event.currentTarget) {
-    closeModal(event.target); // Закрываем модальное окно (оверлей)
+    closeModal(event.target);
   }
 }
