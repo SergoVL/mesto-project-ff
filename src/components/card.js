@@ -1,5 +1,4 @@
 import { deleteCardFromApi, addLikeToApi, removeLikeFromApi } from './api.js';
-import { openModal, closeModal } from './modal.js';
 
 export function deleteCard(cardId, cardElement) {
   deleteCardFromApi(cardId)
@@ -11,7 +10,7 @@ export function deleteCard(cardId, cardElement) {
     });
 }
 
-export function createCard({ data, onDelete, onImageClick, isOwner, currentUserId }) {
+export function createCard({ data, onDelete, onImageClick, currentUserId }) {
   const cardTemplate = document.querySelector('#card-template').content;
   const cardElement = cardTemplate.querySelector('.places__item').cloneNode(true);
 
@@ -26,6 +25,8 @@ export function createCard({ data, onDelete, onImageClick, isOwner, currentUserI
   cardTitle.textContent = data.name;
   likeCount.textContent = data.likes.length;
 
+  const isOwner = data.owner._id === currentUserId;
+
   if (data.likes.some(user => user._id === currentUserId)) {
     likeButton.classList.add('card__like-button_is-active');
   }
@@ -34,40 +35,22 @@ export function createCard({ data, onDelete, onImageClick, isOwner, currentUserI
     deleteButton.remove();
   } else {
     deleteButton.addEventListener('click', () => {
-      const popupDelete = document.querySelector('.popup_type_delete');
-      const confirmButton = popupDelete.querySelector('.popup__button');
-
-      openModal(popupDelete);
-
-      confirmButton.onclick = () => {
-        onDelete(data._id, cardElement);
-        closeModal(popupDelete);
-      };
+      onDelete(data._id, cardElement);
     });
   }
 
   likeButton.addEventListener('click', () => {
     const isLiked = likeButton.classList.contains('card__like-button_is-active');
 
-    if (isLiked) {
-      removeLikeFromApi(data._id)
-        .then(updatedCard => {
-          likeButton.classList.remove('card__like-button_is-active');
-          likeCount.textContent = updatedCard.likes.length;
-        })
-        .catch((err) => {
-          console.error(`Ошибка при снятии лайка: ${err}`);
-        });
-    } else {
-      addLikeToApi(data._id)
-        .then(updatedCard => {
-          likeButton.classList.add('card__like-button_is-active');
-          likeCount.textContent = updatedCard.likes.length;
-        })
-        .catch((err) => {
-          console.error(`Ошибка при постановке лайка: ${err}`);
-        });
-    }
+    const likeMethod = isLiked ? removeLikeFromApi : addLikeToApi;
+    likeMethod(data._id)
+      .then(updatedCard => {
+        likeButton.classList.toggle('card__like-button_is-active');
+        likeCount.textContent = updatedCard.likes.length;
+      })
+      .catch(err => {
+        console.error(`Ошибка при ${isLiked ? 'снятии' : 'постановке'} лайка: ${err}`);
+      });
   });
 
   cardImage.addEventListener('click', () => onImageClick(data));

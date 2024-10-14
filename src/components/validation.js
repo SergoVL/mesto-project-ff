@@ -1,13 +1,15 @@
-function showError(input, message, config) {
+function showError(input, config) {
   input.classList.add('popup__input_type_error');
+
   const errorElement = input.parentElement.querySelector(`.popup__error[data-error-for="${input.name}"]`);
-  errorElement.textContent = message;
+  errorElement.textContent = input.validationMessage;
   errorElement.classList.add(config.errorClass);
   errorElement.classList.add('popup__error_visible');
 }
 
 function hideError(input, config) {
   input.classList.remove('popup__input_type_error');
+
   const errorElement = input.parentElement.querySelector(`.popup__error[data-error-for="${input.name}"]`);
   errorElement.textContent = '';
   errorElement.classList.remove(config.errorClass);
@@ -15,73 +17,38 @@ function hideError(input, config) {
 }
 
 function checkInputValidity(input, config) {
-  const namePattern = /^[а-яА-ЯёЁa-zA-Z -]+$/;
-  const minLength = 2;
-  let maxLength;
-
-  // Установка максимальной длины в зависимости от имени поля
-  switch (input.name) {
-    case 'name':
-      maxLength = 40;
-      break;
-    case 'description':
-      maxLength = 200;
-      break;
-    case 'place-name':
-      maxLength = 30;
-      break;
-  }
-
-  // Проверка на пустое значение
-  if (!input.value) {
-    showError(input, 'Вы пропустили это поле', config);
-    return false;
-  }
-
-  // Проверка длины и соответствия для полей, кроме 'link'
-  if (input.name !== 'link') {
-    if (input.value.length < minLength) {
-      showError(input, `Минимальное количество символов: ${minLength}. Длина текста сейчас: ${input.value.length}`, config);
-      return false;
-    } else if (input.value.length > maxLength) {
-      showError(input, `Максимальное количество символов: ${maxLength}.`, config);
-      return false;
-    } else if (!namePattern.test(input.value)) {
-      showError(input, 'Разрешены только буквы, дефисы и пробелы', config);
-      return false;
-    }
-  }
-
-  // Валидация для поля link
-  if (input.name === 'link') {
-    if (!input.validity.valid) {
-      showError(input, input.validationMessage, config);
-      return false;
-    } else {
-      hideError(input, config);
-    }
-  } else if (!input.validity.valid) {
-    showError(input, input.validationMessage, config);
-    return false;
+  if (input.validity.patternMismatch) {
+    input.setCustomValidity(input.dataset.errorMessage || '');
   } else {
-    hideError(input, config);
+    input.setCustomValidity('');
   }
 
+  if (!input.validity.valid) {
+    showError(input, config);
+    return false;
+  }
+
+  hideError(input, config);
   return true;
 }
 
+const disableSubmitButton = (button, config) => {
+  button.setAttribute('disabled', true);
+  button.classList.add(config.inactiveButtonClass);
+};
+
+const enableSubmitButton = (button, config) => {
+  button.removeAttribute('disabled');
+  button.classList.remove(config.inactiveButtonClass);
+};
 
 function toggleButtonState(inputs, button, config) {
-  const hasErrors = [...inputs].some(input => {
-    return !checkInputValidity(input, config);
-  });
+  const hasInvalidInput = [...inputs].some(input => !input.validity.valid);
 
-  if (hasErrors) {
-    button.setAttribute('disabled', true);
-    button.classList.add(config.inactiveButtonClass);
+  if (hasInvalidInput) {
+    disableSubmitButton(button, config);
   } else {
-    button.removeAttribute('disabled');
-    button.classList.remove(config.inactiveButtonClass);
+    enableSubmitButton(button, config);
   }
 }
 
@@ -101,21 +68,15 @@ function validateForm(form, config) {
 
 function clearValidation(form, config) {
   const inputs = form.querySelectorAll(config.inputSelector);
-  inputs.forEach(input => {
-    hideError(input, config);
-  });
+  inputs.forEach(input => hideError(input, config));
 
   const submitButton = form.querySelector(config.submitButtonSelector);
-  submitButton.setAttribute('disabled', true);
-  submitButton.classList.add(config.inactiveButtonClass);
+  disableSubmitButton(submitButton, config);
 }
-
 
 function enableValidation(config) {
   const forms = document.querySelectorAll(config.formSelector);
-  forms.forEach(form => {
-    validateForm(form, config);
-  });
+  forms.forEach(form => validateForm(form, config));
 }
 
 export { enableValidation, clearValidation };
